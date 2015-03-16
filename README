@@ -1,0 +1,11 @@
+Tools to help merge two directories into one
+
+If identical files in different subdirectories should be kept, use rmerge.sh or rmerge.py
+If files in dir2 that are identical to some file in dir1 should be removed, use rmerge.py -s
+
+
+Related programs
+rcmp will compare the contents of files in two directories (like cmp but compares contents of all files in a directory instead of contents of a single file)
+dedup.py will find duplicate files within a single directory (maybe call it telldup or finddup instead?)
+
+

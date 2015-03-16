@@ -1,0 +1,45 @@
+#!/bin/sh
+# rcmp: recursively compare files within directories
+# usage: rcmp dir1 dir2
+# Compare files in dir1 with files in dir2 and print a message for each
+# file that differs, ignores any unique filenames in dir2
+
+# This should work on any posix-compliant system
+
+SRC="$1"
+DEST="$2"
+
+if [ -z "$SRC" ] || [ -z "$DEST" ]; then
+  echo "Both the source and destination directories must be specified"
+  return 22
+fi
+
+# if $SRC has a leading dash, $SRC may be confused with a parameter to find
+SRC=`echo "$SRC" | sed -e 's@^\-@./\-@' `
+
+export SRC
+export DEST
+
+# Escape single quotes with '\'' within a singly quoted string
+# Has no way to report files only in $DEST
+
+find "$SRC" -type f -exec sh -c '
+  for filename in "$@" ; do
+    escsrc=`echo "$SRC" | sed -e '\''s/[]\/$*.^+|[-]/\\&/g'\''`
+    file=`echo "$filename" | sed -e s/$escsrc\\\\/\\\\\{0,1\\\}// -`
+    printFilename=`printf '\''%s'\'' "$file" | LC_ALL=POSIX tr -d '\''[:cntrl:]'\'' `
+    if [ -e "$DEST/$file" ]; then
+      cmp -s "$SRC/$file" "$DEST/$file"
+      ret="$?"
+      if [ "$ret" = "1" ]; then
+        echo "File differs: $printFilename"
+      elif [ "$ret" != "0" ]; then
+        echo "ERROR: rcmp encountered problem $ret with $printFilename"
+      fi
+    else
+      echo "Only in $SRC: $printFilename"
+    fi
+  done
+ ' sh {} '+'
+
+
