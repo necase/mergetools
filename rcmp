@@ -24,22 +24,22 @@ export DEST
 # Has no way to report files only in $DEST
 
 find "$SRC" -type f -exec sh -c '
-  for filename in "$@" ; do
-    escsrc=`echo "$SRC" | sed -e '\''s/[]\/$*.^+|[-]/\\&/g'\''`
-    file=`echo "$filename" | sed -e s/$escsrc\\\\/\\\\\{0,1\\\}// -`
-    printFilename=`printf '\''%s'\'' "$file" | LC_ALL=POSIX tr -d '\''[:cntrl:]'\'' `
-    if [ -e "$DEST/$file" ]; then
-      cmp -s "$SRC/$file" "$DEST/$file"
-      ret="$?"
-      if [ "$ret" = "1" ]; then
-        echo "File differs: $printFilename"
-      elif [ "$ret" != "0" ]; then
-        echo "ERROR: rcmp encountered problem $ret with $printFilename"
-      fi
-    else
-      echo "Only in $SRC: $printFilename"
-    fi
-  done
+	for filename in "$@" ; do
+		escsrc=`echo "$SRC" | sed -e '\''s@[]/$*.^+|[-]@\\&@g'\''`
+		file=`echo "$filename" | sed -e '\"'s/$escsrc\/\{0,1\}//'\"' -`
+		printFilename=`printf '\''%s'\'' "$file" | LC_ALL=POSIX tr -d '\''[:cntrl:]'\'' `
+		if [ -e "$DEST/$file" ]; then
+			cmp -s "$SRC/$file" "$DEST/$file"
+			ret="$?"
+			if [ "$ret" = "1" ]; then
+				echo "File differs: $printFilename"
+			elif [ "$ret" != "0" ]; then
+				echo "ERROR: rcmp encountered problem $ret with $printFilename"
+			fi
+		else
+			echo "Only in $SRC: $printFilename"
+		fi
+	done
  ' sh {} '+'
 
 
